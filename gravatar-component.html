@@ -18,102 +18,103 @@ Examples:
 @demo
 -->
 <dom-module id="gravatar-component">
-
-    <style>
-        :host {
-            display: block;
-            box-sizing: border-box;
-        }
-
-        img {
-            @apply(--gravatar-component-img);
-        }
-    </style>
-
     <template>
+        <style>
+            :host {
+                display: block;
+                box-sizing: border-box;
+            }
+
+            img {
+                @apply(--gravatar-component-img);
+            }
+        </style>
         <img src="[[_computeUrl(email, hash, size, imageSet, rating, defaultImage, secure, retina)]]" width="[[size]]" height="[[size]]" alt="[[altText]]" />
     </template>
 
     <script type="text/javascript" src="../js-md5/build/md5.min.js"></script>
 
     <script>
-        Polymer({
 
-            is: 'gravatar-component',
+        class GravatarComponent extends Polymer.Element {
+            static get is() { return "gravatar-component"; }
+            static get properties() {
+                return {
+                    // The email address
+                    email: {
+                        type: String,
+                        value: null
+                    },
 
-            properties: {
-                // The email address
-                email: {
-                    type: String,
-                    value: null
-                },
+                    // Hashed Email
+                    hash: {
+                        type: String,
+                        value: null
+                    },
 
-                // Hashed Email
-                hash: {
-                    type: String,
-                    value: null
-                },
+                    // Custom default image as fallback
+                    defaultImage: {
+                        type: String,
+                        value: null
+                    },
 
-                // Custom default image as fallback
-                defaultImage: {
-                    type: String,
-                    value: null
-                },
+                    // Image's alternate text
+                    altText: {
+                        type: String,
+                        value: null
+                    },
 
-                // Image's alternate text
-                altText: {
-                    type: String,
-                    value: null
-                },
+                    // Size in pixels, defaults to 80px [ 1 - 2048 ]
+                    size: {
+                        type: Number,
+                        value: 80
+                    },
 
-                // Size in pixels, defaults to 80px [ 1 - 2048 ]
-                size: {
-                    type: Number,
-                    value: 80
-                },
+                    // Default imageset to use if not custom defaultImage is provided [ 404 , mm , identicon , monsterid , wavatar ]
+                    imageSet: {
+                        type: String,
+                        value: 'mm'
+                    },
 
-                // Default imageset to use if not custom defaultImage is provided [ 404 , mm , identicon , monsterid , wavatar ]
-                imageSet: {
-                    type: String,
-                    value: 'mm'
-                },
+                    // Maximum rating (inclusive) [ g , pg , r , x ]
+                    rating: {
+                        type: String,
+                        value: 'g'
+                    },
 
-                // Maximum rating (inclusive) [ g , pg , r , x ]
-                rating: {
-                    type: String,
-                    value: 'g'
-                },
+                    // True for Https and False for Http
+                    secure: {
+                        type: Boolean,
+                        value: false
+                    },
 
-                // True for Https and False for Http
-                secure: {
-                    type: Boolean,
-                    value: false
-                },
+                    // True for retina ready gravatar
+                    retina: {
+                        type: Boolean,
+                        value: false
+                    }
+                };
+            }
 
-                // True for retina ready gravatar
-                retina: {
-                    type: Boolean,
-                    value: false
-                }
-            },
-
-            _computeUrl: function(email, hash, size, imageSet, rating, defaultImage, secure, retina) {
+            _computeUrl(email, hash, size, imageSet, rating, defaultImage, secure, retina) {
                 if (!email && !hash) return null;
                 
                 var url = [
                     secure ? 'https://www.gravatar.com/avatar/' : 'http://www.gravatar.com/avatar/',
                     hash || md5(email.trim().toLowerCase()),
-                    '.jpg?s=' + retinaReady(size, retina),
+                    '.jpg?s=' + this._retinaReady(size, retina),
                     '&d=' + (defaultImage ? encodeURIComponent(defaultImage) : imageSet),
                     '&r=' + rating
                 ].join('');
 
                 return url;
             }
-        });
 
-        function retinaReady(size, retina) {
-            return retina && window.devicePixelRatio > 1.5 ? 2 * size : size;
+            _retinaReady(size, retina) {
+                return retina && window.devicePixelRatio > 1.5 ? 2 * size : size;
+            }
         }
+        
+        window.customElements.define(GravatarComponent.is, GravatarComponent); 
     </script>
 </dom-module>
